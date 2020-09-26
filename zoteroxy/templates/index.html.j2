@@ -1,0 +1,31 @@
+{% extends 'layout.html.j2' %}
+
+{% block content %}
+    <h1>Zoteroxy</h1>
+
+    <p>This is instance of Zotero proxy service to publish certain items from otherwise private library of Zotero. It provides both simple web interface but also JSON API.</p>
+
+    <h2>Configuration</h2>
+
+    <ul>
+        <li>Library: <strong>{{ config.library.name }}</strong> (ID: {{ config.library.id }})</li>
+        <li>Filter based on tags:
+        <ul>
+            {% for tag in config.settings.tags %}
+                <li><span class="badge badge-success">{{ tag }}</span></li>
+            {% else %}
+                <li><em>No tags are configured...</em></li>
+            {% endfor %}
+        </ul>
+        </li>
+    </ul>
+
+    <h2>Usage</h2>
+
+    <ul>
+        <li><code>GET /</code> = basic information about the proxy</li>
+        <li><code>GET /items</code> = list of published items</li>
+        <li><code>GET /settings</code> = settings and service info of the proxy</li>
+    </ul>
+
+{% endblock %}

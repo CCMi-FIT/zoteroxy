@@ -1,0 +1,12 @@
+zotero:
+  api_key: ApiKey
+library:
+  type: group | user
+  id: LibraryID
+  name: LibraryName
+settings:
+  tags:
+    - TagToFilterItems
+    - Tag1 OR Tag2
+  cache:
+    duration: 3600

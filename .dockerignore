@@ -1,0 +1,8 @@
+env
+.dockerignore
+.gitignore
+LICENSE
+__pycache__/
+*.egg-info/
+Dockerfile
+*.yml

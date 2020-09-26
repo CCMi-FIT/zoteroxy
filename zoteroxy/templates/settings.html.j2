@@ -1,0 +1,26 @@
+{% extends 'layout.html.j2' %}
+
+{% block content %}
+    <h1>Settings</h1>
+
+    <h2>Tags</h2>
+
+    <ul>
+        <li>Filter based on tags:
+            <ul>
+                {% for tag in config.settings.tags %}
+                    <li><span class="badge badge-success">{{ tag }}</span></li>
+                {% else %}
+                    <li><em>No tags are configured...</em></li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+
+    <h2>Cache</h2>
+
+    <ul>
+        <li>Cache expires after <strong>{{ config.settings.cache_duration }}</strong> seconds.</li>
+    </ul>
+
+{% endblock %}
