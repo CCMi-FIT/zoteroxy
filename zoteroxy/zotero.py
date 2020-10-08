@@ -1,9 +1,10 @@
 import datetime
 from pyzotero import zotero
 
-from typing import Dict
+from typing import Dict, List
 
 from zoteroxy.config import ZoteroxyConfig
+from zoteroxy.model import LibraryItem
 
 
 class CachedValue:
@@ -35,10 +36,9 @@ class Zotero:
     def _items(self):
         return self.library.items(tag=self.config.settings.tags)
 
-    def items(self):
-        # TODO: reformat items
+    def items(self) -> List[LibraryItem]:
         result = self._from_cache('items')
         if result is None:
             result = self._items()
             self.cache['items'] = CachedValue(result)
-        return result
+        return [LibraryItem(item) for item in result]

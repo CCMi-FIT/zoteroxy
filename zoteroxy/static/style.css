@@ -1,0 +1,11 @@
+div.main {padding-top: 1em;}
+div.navbar-container {display: flex;}
+div.navbar-container > div.expand {flex-grow: 1;}
+div.navbar-container > div.navbar-collapse {flex-grow: 0;}
+
+.library-item {
+    margin-bottom: 0.3em;
+}
+.library-item .title {
+    font-weight: bold;
+}

@@ -19,6 +19,7 @@ setup(
     install_requires=[
         'aiohttp',
         'aiohttp-jinja2',
+        'pyhumps',
         'Pyzotero',
         'PyYAML',
     ],
