@@ -1,6 +1,6 @@
 import yaml
 
-from typing import Optional, List
+from typing import List, Set
 
 
 class MissingConfigurationError(Exception):
@@ -11,7 +11,7 @@ class MissingConfigurationError(Exception):
 
 class SettingsConfig:
 
-    def __init__(self, tags: List[str], cache_duration: int):
+    def __init__(self, tags: frozenset, cache_duration: int):
         self.tags = tags
         self.cache_duration = cache_duration
 
@@ -46,7 +46,7 @@ class ZoteroxyConfigParser:
             'type': 'group'
         },
         'settings': {
-            'tags': [],
+            'tags': frozenset(),
             'cache': {
                 'duration': 3600,
             },
@@ -103,7 +103,7 @@ class ZoteroxyConfigParser:
     @property
     def settings(self):
         return SettingsConfig(
-            tags=self.get_or_default('settings', 'tags'),
+            tags=frozenset(self.get_or_default('settings', 'tags')),
             cache_duration=self.get_or_default('settings', 'cache', 'duration'),
         )
 

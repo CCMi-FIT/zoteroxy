@@ -61,6 +61,25 @@ async def settings_handler(request):
         )
 
 
+async def file_retrieve_handler(request):
+    key = request.match_info.get('key', None)
+    if key is None:
+        raise web.HTTPBadRequest()
+    zotero = request.app['zotero']  # type: Zotero
+    try:
+        metadata = zotero.attachment_metadata(key=key)
+    except RuntimeError:
+        raise web.HTTPNotFound()
+    data = zotero.attachment_data(metadata=metadata)
+    return web.Response(
+        body=data,
+        content_type=metadata.content_type,
+        headers={
+            'Content-Disposition': f'inline; filename="{metadata.filename}"'
+        }
+    )
+
+
 ENV_CONFIG = 'ZOTEROXY_CONFIG'
 
 
@@ -74,7 +93,6 @@ def init_func(argv):
     if config_file is not None:
         with open(config_file) as f:
             app['cfg'] = cfg.parse_file(f)
-        print(app['cfg'])
     else:
         print('Missing configuration file!')
     app['zotero'] = Zotero(app['cfg'])
@@ -87,8 +105,9 @@ def init_func(argv):
                           path=PROJECT_ROOT / 'static',
                           name='static')
     app['static_root_url'] = '/static'
-    app.router.add_get('/', index_handler)
-    app.router.add_get('/items', items_handler)
-    app.router.add_get('/settings', settings_handler)
+    app.router.add_get('/', index_handler, name='index')
+    app.router.add_get('/items', items_handler, name='items')
+    app.router.add_get('/settings', settings_handler, name='settings')
+    app.router.add_get('/file/{key}', file_retrieve_handler, name='file')
 
     return app

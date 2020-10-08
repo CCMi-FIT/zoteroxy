@@ -22,11 +22,11 @@
 {%- endmacro -%}
 
 {% macro type_tag(item) %}
-    <span class="badge badge-primary">{{ item.type|decamelize }}</span>
+    <a class="badge badge-primary">{{ item.type|decamelize }}</a>
 {% endmacro %}
 
 {% macro attachment_tags(item) %}
-    {%- for a in item.attachments -%}<span class="badge badge-success">{{ a.type }}</span> {% endfor -%}
+    {%- for a in item.attachments -%}<a class="badge badge-success" href="{{ url('file', key=a.key) }}" target="_blank">{{ a.type }}</a> {% endfor -%}
 {% endmacro %}
 
 {% macro tags(item) %}

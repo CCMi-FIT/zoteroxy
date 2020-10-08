@@ -4,7 +4,7 @@ from pyzotero import zotero
 from typing import Dict, List
 
 from zoteroxy.config import ZoteroxyConfig
-from zoteroxy.model import LibraryItem
+from zoteroxy.model import LibraryItem, AttachmentMetadata
 
 
 class CachedValue:
@@ -33,7 +33,28 @@ class Zotero:
             return None
         return self.cache[key].value
 
+    def _tags_allowed(self, tags):
+        for t in tags:
+            if t in self.config.settings.tags:
+                return True
+        return False
+
+    def attachment_metadata(self, key) -> AttachmentMetadata:
+        # TODO: cache
+        item = self.library.item(key)
+        if item['data']['itemType'] != 'attachment':
+            raise RuntimeError('Not an attachment')
+        if not self._tags_allowed(item['data']['tags']):
+            raise RuntimeError('Not allowed attachment')
+        return AttachmentMetadata(item)
+
+    def attachment_data(self, metadata: AttachmentMetadata) -> bytes:
+        # TODO: cache
+        data = self.library.file(metadata.key)
+        return data
+
     def _items(self):
+        # TODO: query children attachments (for multiple)
         return self.library.items(tag=self.config.settings.tags)
 
     def items(self) -> List[LibraryItem]:
