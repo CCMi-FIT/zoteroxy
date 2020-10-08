@@ -1,6 +1,7 @@
+import pathlib
 import yaml
 
-from typing import List, Set
+from typing import List
 
 
 class MissingConfigurationError(Exception):
@@ -11,9 +12,12 @@ class MissingConfigurationError(Exception):
 
 class SettingsConfig:
 
-    def __init__(self, tags: frozenset, cache_duration: int):
+    def __init__(self, tags: frozenset, cache_duration: int, cache_file_duration: int,
+                 cache_directory: pathlib.Path):
         self.tags = tags
         self.cache_duration = cache_duration
+        self.cache_file_duration = cache_file_duration
+        self.cache_directory = cache_directory
 
 
 class LibraryConfig:
@@ -49,6 +53,10 @@ class ZoteroxyConfigParser:
             'tags': frozenset(),
             'cache': {
                 'duration': 3600,
+                'file': {
+                    'duration': 3600,
+                    'directory': 'cache',
+                },
             },
         },
     }
@@ -105,6 +113,8 @@ class ZoteroxyConfigParser:
         return SettingsConfig(
             tags=frozenset(self.get_or_default('settings', 'tags')),
             cache_duration=self.get_or_default('settings', 'cache', 'duration'),
+            cache_file_duration=self.get_or_default('settings', 'cache', 'file', 'duration'),
+            cache_directory=pathlib.Path(self.get_or_default('settings', 'cache', 'file', 'directory')),
         )
 
     @property

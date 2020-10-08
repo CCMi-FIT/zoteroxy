@@ -10,3 +10,6 @@ settings:
     - Tag1 OR Tag2
   cache:
     duration: 3600
+    file:
+      duration: 3600
+      directory: cache
