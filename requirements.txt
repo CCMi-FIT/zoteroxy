@@ -1,4 +1,5 @@
 aiohttp
+aiohttp_cors
 aiohttp-jinja2
 pyhumps
 Pyzotero

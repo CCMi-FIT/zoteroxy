@@ -1,4 +1,5 @@
 import aiohttp_jinja2
+import aiohttp_cors
 import humps
 import jinja2
 import os
@@ -96,6 +97,9 @@ def init_func(argv):
     else:
         print('Missing configuration file!')
     app['zotero'] = Zotero(app['cfg'])
+
+    cors_enabled_routes = []
+
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.PackageLoader('zoteroxy', 'templates'),
@@ -105,9 +109,15 @@ def init_func(argv):
                           path=PROJECT_ROOT / 'static',
                           name='static')
     app['static_root_url'] = '/static'
-    app.router.add_get('/', index_handler, name='index')
-    app.router.add_get('/items', items_handler, name='items')
-    app.router.add_get('/settings', settings_handler, name='settings')
+    cors_enabled_routes.append(app.router.add_get('/', index_handler, name='index'))
+    cors_enabled_routes.append(app.router.add_get('/items', items_handler, name='items'))
+    cors_enabled_routes.append(app.router.add_get('/settings', settings_handler, name='settings'))
     app.router.add_get('/file/{key}', file_retrieve_handler, name='file')
+
+    cors = aiohttp_cors.setup(app)
+    for route in cors_enabled_routes:
+        cors.add(route, {
+            "*": aiohttp_cors.ResourceOptions(expose_headers="*", allow_headers="*"),
+        })
 
     return app
