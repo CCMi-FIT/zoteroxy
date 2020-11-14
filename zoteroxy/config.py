@@ -12,8 +12,9 @@ class MissingConfigurationError(Exception):
 
 class SettingsConfig:
 
-    def __init__(self, tags: frozenset, cache_duration: int, cache_file_duration: int,
-                 cache_directory: pathlib.Path):
+    def __init__(self, base_url: str, tags: frozenset, cache_duration: int,
+                 cache_file_duration: int, cache_directory: pathlib.Path):
+        self.base_url = base_url.rstrip('/')
         self.tags = tags
         self.cache_duration = cache_duration
         self.cache_file_duration = cache_file_duration
@@ -22,10 +23,13 @@ class SettingsConfig:
 
 class LibraryConfig:
 
-    def __init__(self, library_type: str, library_id: str, name: str):
+    def __init__(self, library_type: str, library_id: str, name: str,
+                 owner: str, description: str):
         self.type = library_type
         self.id = library_id
         self.name = name
+        self.owner = owner
+        self.description = description
 
 
 class ZoteroConfig:
@@ -47,7 +51,9 @@ class ZoteroxyConfigParser:
     DEFAULTS = {
         'zotero': {},
         'library': {
-            'type': 'group'
+            'type': 'group',
+            'owner': '',
+            'description': '',
         },
         'settings': {
             'tags': frozenset(),
@@ -65,6 +71,7 @@ class ZoteroxyConfigParser:
         ['zotero', 'api_key'],
         ['library', 'id'],
         ['library', 'name'],
+        ['settings', 'base_url'],
     ]
 
     def __init__(self):
@@ -106,11 +113,14 @@ class ZoteroxyConfigParser:
             library_type=self.get_or_default('library', 'type'),
             library_id=self.get_or_default('library', 'id'),
             name=self.get_or_default('library', 'name'),
+            owner=self.get_or_default('library', 'owner'),
+            description=self.get_or_default('library', 'description'),
         )
 
     @property
     def settings(self):
         return SettingsConfig(
+            base_url=self.get_or_default('settings', 'base_url'),
             tags=frozenset(self.get_or_default('settings', 'tags')),
             cache_duration=self.get_or_default('settings', 'cache', 'duration'),
             cache_file_duration=self.get_or_default('settings', 'cache', 'file', 'duration'),

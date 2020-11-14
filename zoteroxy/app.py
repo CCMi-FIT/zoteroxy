@@ -1,5 +1,7 @@
 import aiohttp_jinja2
 import aiohttp_cors
+import aiohttp_swagger
+import functools
 import humps
 import jinja2
 import os
@@ -7,86 +9,162 @@ import pathlib
 
 from aiohttp import web
 
-from zoteroxy.config import ZoteroxyConfigParser, ZoteroxyConfig
+from zoteroxy.api import ZoteroxyAPI
+from zoteroxy.config import ZoteroxyConfigParser
+from zoteroxy.consts import APPNAME, DESCRIPTION, VERSION, ENV_CONFIG
 from zoteroxy.zotero import Zotero
 
 
+filters = dict()
+routes = list()
+
+
+def zoteroxy_jinja_filter(name: str):
+    def wrapper(func):
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            return func(*args, **kwargs)
+        filters[name] = wrapped
+        return wrapped
+    return wrapper
+
+
+def zoteroxy_endpoint(method: str, route: str, *, name: str, cors: bool = True):
+    def wrapper(func):
+        @functools.wraps(func)
+        async def wrapped(request):
+            api = request.app['api']
+            return await func(request=request, api=api)
+        routes.append(
+            (method, route, wrapped, name, cors)
+        )
+        return wrapped
+    return wrapper
+
+
+@zoteroxy_jinja_filter('decamelize')
 def decamelize_filter(text):
     return humps.decamelize(text).replace('_', ' ').capitalize()
 
 
-async def index_handler(request):
-    config = request.app['cfg']
-    zotero = request.app['zotero']
+@zoteroxy_endpoint('GET', '/', name='index')
+async def index_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Basic information about the proxy instance.
+    produces:
+    - application/json
+    - text/html
+    responses:
+        "200":
+            description: proxy information
+    """
     if request.headers['Accept'] == 'application/json':
-        return web.json_response(zotero.library.key_info())
+        return await api.get_info_json()
     else:
-        return aiohttp_jinja2.render_template(
-            'index.html.j2', request, {
-                'current': 'home',
-                'zotero': zotero,
-                'config': config,
-            }
-        )
+        return await api.view_index(request)
 
 
-async def items_handler(request):
-    zotero = request.app['zotero']
-    items = zotero.items()
+@zoteroxy_endpoint('GET', '/collection', name='collection')
+async def items_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Serialized collection of library items.
+    produces:
+    - application/json
+    - application/x-bibtex
+    - text/html
+    responses:
+        "200":
+            description: library items
+    """
     if request.headers['Accept'] == 'application/json':
-        return web.json_response([item.serialize() for item in items])
+        return await api.get_collection()
+    elif request.headers['Accept'] == 'application/x-bibtex':
+        return await api.get_collection_bib()
     else:
-        return aiohttp_jinja2.render_template(
-            'items.html.j2', request, {
-                'current': 'items',
-                'items': items,
-            }
-        )
+        return await api.view_collection(request)
 
 
-async def settings_handler(request):
-    config = request.app['cfg']  # type: ZoteroxyConfig
+@zoteroxy_endpoint('GET', '/collection.json', name='collection_json')
+async def items_json_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Library items in BibJSON format.
+    produces:
+    - application/json
+    responses:
+        "200":
+            description: library items
+    """
+    return await api.get_collection_json()
+
+
+@zoteroxy_endpoint('GET', '/collection.bib', name='collection_bib')
+async def items_bib_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Library items in BibTeX format.
+    produces:
+    - application/x-bibtex
+    responses:
+        "200":
+            description: library items
+    """
+    return await api.get_collection_bib()
+
+
+@zoteroxy_endpoint('GET', '/settings', name='settings')
+async def settings_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Settings information about the proxy instance.
+    produces:
+    - application/json
+    - text/html
+    responses:
+        "200":
+            description: settings information
+    """
     if request.headers['Accept'] == 'application/json':
-        return web.json_response({
-            'tags': config.settings.tags,
-            'cache': {
-                'duration': config.settings.cache_duration
-            }
-        })
+        return await api.get_settings_json()
     else:
-        return aiohttp_jinja2.render_template(
-            'settings.html.j2', request, {
-                'current': 'settings',
-                'config': config,
-            }
-        )
+        return await api.view_settings(request)
 
 
-async def file_retrieve_handler(request):
-    key = request.match_info.get('key', None)
-    if key is None:
-        raise web.HTTPBadRequest()
-    zotero = request.app['zotero']  # type: Zotero
-    try:
-        metadata = zotero.attachment_metadata(key=key)
-    except RuntimeError:
-        raise web.HTTPNotFound()
-    data = zotero.attachment_data(metadata=metadata)
-    return web.Response(
-        body=data,
-        content_type=metadata.content_type,
-        headers={
-            'Content-Disposition': f'inline; filename="{metadata.filename}"'
-        }
-    )
+@zoteroxy_endpoint('GET', '/file/{key}', name='file', cors=False)
+async def file_retrieve_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Retrieve file content based on given key
+    responses:
+        "200":
+            description: file content
+        "400":
+            description: invalid key
+        "404":
+            description: file with given key is not available
+    """
+    return await api.retrieve_file(request)
 
 
-ENV_CONFIG = 'ZOTEROXY_CONFIG'
+@zoteroxy_endpoint('POST', '/purge', name='purge_cache', cors=False)
+async def purge_cache_handler(request, api: ZoteroxyAPI):
+    """
+    ---
+    description: Purge caches of the proxy.
+    produces:
+    - application/x-bibtex
+    responses:
+        "204":
+            description: cache has been purged
+    """
+    return await api.purge_cache()
 
 
 def init_func(argv):
     app = web.Application()
-    PROJECT_ROOT = pathlib.Path(__file__).parent.absolute()
+    app_root = pathlib.Path(__file__).parent.absolute()
 
     # load config
     config_file = os.getenv(ENV_CONFIG)
@@ -96,28 +174,35 @@ def init_func(argv):
             app['cfg'] = cfg.parse_file(f)
     else:
         print('Missing configuration file!')
-    app['zotero'] = Zotero(app['cfg'])
+    app['api'] = ZoteroxyAPI(Zotero(app['cfg']))
 
-    cors_enabled_routes = []
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+    })
 
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.PackageLoader('zoteroxy', 'templates'),
-        filters={'decamelize': decamelize_filter},
+        filters=filters,
     )
-    app.router.add_static('/static/',
-                          path=PROJECT_ROOT / 'static',
-                          name='static')
+    app.router.add_static('/static/', path=app_root / 'static', name='static')
     app['static_root_url'] = '/static'
-    cors_enabled_routes.append(app.router.add_get('/', index_handler, name='index'))
-    cors_enabled_routes.append(app.router.add_get('/items', items_handler, name='items'))
-    cors_enabled_routes.append(app.router.add_get('/settings', settings_handler, name='settings'))
-    app.router.add_get('/file/{key}', file_retrieve_handler, name='file')
 
-    cors = aiohttp_cors.setup(app)
-    for route in cors_enabled_routes:
-        cors.add(route, {
-            "*": aiohttp_cors.ResourceOptions(expose_headers="*", allow_headers="*"),
-        })
+    for method, path, handler, name, use_cors in routes:
+        route = app.router.add_route(method=method, path=path, handler=handler, name=name)
+        if use_cors:
+            cors.add(route)
+
+    aiohttp_swagger.setup_swagger(
+        app=app,
+        swagger_url='/swagger-ui',
+        title=APPNAME,
+        description=DESCRIPTION,
+        api_version=VERSION
+    )
 
     return app

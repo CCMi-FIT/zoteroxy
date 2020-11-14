@@ -3,6 +3,8 @@
 {% block content %}
     <h1>Settings</h1>
 
+    <p>The configured base URL of this proxy is: <strong>{{ config.settings.base_url }}</strong>.</p>
+
     <h2>Tags</h2>
 
     <ul>
@@ -21,6 +23,7 @@
 
     <ul>
         <li>Cache expires after <strong>{{ config.settings.cache_duration }}</strong> seconds.</li>
+        <li>Files expire after <strong>{{ config.settings.cache_file_duration }}</strong> seconds.</li>
     </ul>
 
 {% endblock %}

@@ -49,12 +49,18 @@ class Cache:
             return v
         return None
 
+    def clear(self):
+        self._values.clear()
+
 
 class FileCache:
 
     def __init__(self, duration: int, directory: pathlib.Path):
         self._cache = Cache(duration=duration)
         self.directory = directory
+        self._clear_directory()
+
+    def _clear_directory(self):
         if self.directory.exists():
             for child in self.directory.glob('*'):
                 if child.is_file():
@@ -81,3 +87,7 @@ class FileCache:
             self.set(key, v)
             return v
         return None
+
+    def clear(self):
+        self._clear_directory()
+        self._cache.clear()

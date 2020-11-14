@@ -9,3 +9,23 @@ div.navbar-container > div.navbar-collapse {flex-grow: 0;}
 .library-item .title {
     font-weight: bold;
 }
+
+div#refs > div {
+    margin-bottom: 0.5em;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin: 5em auto;
+    padding-top: 5em;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

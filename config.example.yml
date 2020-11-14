@@ -4,7 +4,10 @@ library:
   type: group | user
   id: LibraryID
   name: LibraryName
+  owner:
+  description:
 settings:
+  base_url:
   tags:
     - TagToFilterItems
     - Tag1 OR Tag2

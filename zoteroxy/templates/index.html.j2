@@ -20,12 +20,22 @@
         </li>
     </ul>
 
+    <h2>Capabilities</h2>
+
+    <ul>
+        <li>Custom JSON collection of filtered Zotero library items</li>
+        <li><a href="http://www.bibtex.org" target="_blank">BibTeX</a> serialization of the collection items</li>
+        <li><a href="http://okfnlabs.org/bibjson/" target="_blank">BibJSON</a> serialization of the collection items</li>
+        <li>File attachments retrieval</li>
+    </ul>
+
     <h2>Usage</h2>
+
+    <p>For more details visit the <a href="/swagger-ui/" target="_blank">Swagger API documentation</a>.</p>
 
     <ul>
         <li><code>GET /</code> = basic information about the proxy</li>
-        <li><code>GET /items</code> = list of published items</li>
+        <li><code>GET /collection</code> = list of published items</li>
         <li><code>GET /settings</code> = settings and service info of the proxy</li>
     </ul>
-
 {% endblock %}
