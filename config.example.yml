@@ -10,7 +10,7 @@ settings:
   base_url:
   tags:
     - TagToFilterItems
-    - Tag1 OR Tag2
+    - Tag1 || Tag2
   cache:
     duration: 3600
     file:

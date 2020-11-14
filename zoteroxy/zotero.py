@@ -36,7 +36,7 @@ class Zotero:
     def _items(self) -> dict:
         items_dict = dict()
         items_list = self.library.everything(
-            self.library.items(tag=' OR '.join(self.config.settings.tags))
+            self.library.items(tag=self.config.settings.tags)
         )  # type: List[dict]
         for item in items_list:
             key = item.get('key', None)

@@ -19,6 +19,7 @@ setup(
     author_email='suchama4@fit.cvut.cz',
     license='MIT',
     packages=find_packages(),
+    python_requires='>=3.6, <4',
     install_requires=[
         'aiohttp',
         'aiohttp_cors',
