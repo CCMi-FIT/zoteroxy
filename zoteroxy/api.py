@@ -29,6 +29,7 @@ class ZoteroxyAPI:
         return aiohttp_jinja2.render_template(
             'collection.html.j2', request, {
                 'current': 'collection',
+                'config': self.config,
             }
         )
 

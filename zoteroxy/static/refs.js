@@ -1,8 +1,8 @@
 const Cite = require('citation-js');
 
-jQuery(document).ready(() => {
+function showCollection(endpoint, $elem) {
     jQuery.ajax({
-        url: '/collection',
+        url: `${endpoint}/collection`,
         method: 'GET',
         dataType: 'json',
         headers : {
@@ -26,8 +26,13 @@ jQuery(document).ready(() => {
             console.log("Error");
             jQuery("#refs").empty();
             jQuery("#refs").append(
-                $("<div>").addClass("alert alert-danger").text("Failed to retrieve collection items...")
+                jQuery("<div>").addClass("alert alert-danger").text("Failed to retrieve collection items...")
             );
         },
     });
+}
+
+jQuery(document).ready(() => {
+    const endpoint = jQuery("#refs").data('endpoint');
+    showCollection(endpoint, this);
 });

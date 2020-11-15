@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Zoteroxy</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ static('style.css') }}">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{{ config.settings.base_url }}/static/style.css">
+    <link rel="icon" href="{{ config.settings.base_url }}/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ config.settings.base_url }}/static/favicon.ico" type="image/x-icon" />
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -19,9 +19,9 @@
             <div class="expand"></div>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-item nav-link{% if current=='home' %} active{% endif %}" href="/">Home</a>
-                    <a class="nav-item nav-link{% if current=='collection' %} active{% endif %}" href="/collection">Collection</a>
-                    <a class="nav-item nav-link{% if current=='settings' %} active{% endif %}" href="/settings">Settings</a>
+                    <a class="nav-item nav-link{% if current=='home' %} active{% endif %}" href="{{ config.settings.base_url }}/">Home</a>
+                    <a class="nav-item nav-link{% if current=='collection' %} active{% endif %}" href="{{ config.settings.base_url }}/collection">Collection</a>
+                    <a class="nav-item nav-link{% if current=='settings' %} active{% endif %}" href="{{ config.settings.base_url }}/settings">Settings</a>
                 </div>
             </div>
         </div>
