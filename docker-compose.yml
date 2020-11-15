@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  zoteroxy:
+    image: ccmi/zoteroxy
+    ports:
+      - 8085:8080
+    environment:
+      ZOTEROXY_CONFIG: /config.yml
+    volumes:
+      - ./config.yml:/config.yml:ro

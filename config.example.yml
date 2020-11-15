@@ -1,0 +1,18 @@
+zotero:
+  api_key: ApiKey
+library:
+  type: group | user
+  id: LibraryID
+  name: LibraryName
+  owner:
+  description:
+settings:
+  base_url:
+  tags:
+    - TagToFilterItems
+    - Tag1 || Tag2
+  cache:
+    duration: 3600
+    file:
+      duration: 3600
+      directory: cache

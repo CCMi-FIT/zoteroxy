@@ -1,0 +1,19 @@
+{% extends "layout.html.j2" %}
+
+
+{% block content %}
+    <h1>Collection</h1>
+
+    <p>Here is the list of items in the proxied collection in APA style using <a href="http://okfnlabs.org/bibjson/" target="_blank">BibJSON</a> and <a href="https://citation.js.org" target="_blank">citation.js</a>:</p>
+
+    <div id="refs" data-endpoint="{{ config.settings.base_url }}">
+        <div id="loader" class="loader"></div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script src="https://cdn.jsdelivr.net/npm/citation-js@0.4.10/build/citation.min.js" integrity="sha256-vqUHuIyFzuc0osFFLRQk5hhFPLGHSnc4jvAtp9lZYvo=" crossorigin="anonymous"></script>
+    <script src="{{ config.settings.base_url }}/static/refs.js"></script>
+{% endblock %}
