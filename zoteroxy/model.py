@@ -57,7 +57,7 @@ class Attachment:
         if 'parentItem' in data.keys():
             self.parent = data.get('parentItem', None)  # type: Optional[str]
         self.file_hash = data.get('md5', None)  # type: Optional[str]
-        self.content_type = data.get('contentType' 'application/octet-stream')  # type: Optional[str]
+        self.content_type = data.get('contentType', 'application/octet-stream')  # type: Optional[str]
         self.filename = data.get('filename', self.key)  # type: Optional[str]
         self.title = data.get('title', None)  # type: Optional[str]
         self.mtime = data.get('mtime', None)  # type: Optional[int]

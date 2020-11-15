@@ -74,7 +74,7 @@ class BibTexSerializer(BaseSerializer):
         for key, attrs in cls._ATTRIBUTES.items():
             for attr in attrs:
                 v = getattr(item, attr, None)
-                if v is not None:
+                if v is not None and v != '':
                     pairs[key] = v
                     break
         authors = []

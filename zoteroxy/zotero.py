@@ -17,7 +17,12 @@ class Zotero:
         self.library = zotero.Zotero(config.library.id, config.library.type, config.zotero.api_key)
 
     def _tags_allowed(self, tags) -> bool:
-        return any(map(lambda t: t in self.config.settings.tags, tags))
+        tags = set(tags)
+        for tag in self.config.settings.tags:
+            or_tags = map(str.strip, tag.split('||'))
+            if not any(map(lambda t: t in tags , or_tags)):
+                return False
+        return True
 
     def attachment_metadata(self, key) -> Attachment:
         item = self._metadata_cache.get(key=f'item_{key}', callback=lambda k: self.library.item(key))
